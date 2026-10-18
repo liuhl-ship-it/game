@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>開心學中文：認識「潤膚膏」</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+    body {
+      font-family: "PingFang HK", "Microsoft JhengHei", "Heiti TC", sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      color: #1e293b;
+    }
+    header { width: 100%; max-width: 800px; text-align: center; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .btn-nav-back { background: #e2e8f0; color: #475569; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 20px; padding: 8px 18px; cursor: pointer; visibility: hidden; }
+    .btn-nav-back.show { visibility: visible; }
+    .progress-nav { display: flex; justify-content: center; gap: 10px; }
+    .step-pill { background: #ffffff; border: 3px solid #94a3b8; border-radius: 30px; padding: 8px 18px; font-size: 1.1rem; font-weight: bold; color: #64748b; transition: all 0.25s; }
+    .step-pill.active { border-color: #0284c7; background: #0284c7; color: #ffffff; transform: scale(1.05); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+    .instruction-bar { background: #ffffff; border-radius: 50px; padding: 10px 24px; margin: 4px auto 12px; display: inline-flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .speaker-btn { background: #38bdf8; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .instruction-text { font-size: 1.45rem; font-weight: 800; color: #0f172a; }
+    main { width: 100%; max-width: 800px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 8px 0; }
+    .stage { display: none; width: 100%; flex-direction: column; align-items: center; gap: 20px; }
+    .stage.active { display: flex; }
+    
+    /* 罐子圖片框 */
+    .product-img-box { width: 220px; height: 220px; border-radius: 28px; background: #ffffff; box-shadow: 0 8px 24px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; overflow: hidden; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .phrase-cards { display: flex; gap: 18px; }
+    .read-card { background: #ffffff; border: 5px solid #0284c7; border-radius: 26px; width: 130px; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 4.5rem; font-weight: 900; color: #0369a1; box-shadow: 0 8px 20px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.15s; }
+    .read-card:active { transform: scale(0.92); }
+
+    /* 第二關樣式 */
+    .round-tag { background: #fef08a; color: #854d0e; padding: 6px 18px; border-radius: 20px; font-weight: 800; font-size: 1.2rem; }
+    .slots-container { display: flex; gap: 16px; }
+    .target-slot { background: #f8fafc; border: 4px dashed #94a3b8; border-radius: 24px; width: 120px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 4.2rem; font-weight: 900; color: #047857; position: relative; }
+    .slot-label { position: absolute; top: 6px; left: 10px; font-size: 0.95rem; color: #94a3b8; }
+    .target-slot.filled { background: #dcfce7; border: 4px solid #22c55e; }
+    .draggable-pool { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 680px; margin-top: 6px; }
+    .drag-card { background: #ffffff; border: 5px solid #0284c7; border-radius: 20px; width: 100px; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; font-weight: 900; color: #0f172a; box-shadow: 0 6px 16px rgba(0,0,0,0.1); cursor: pointer; touch-action: none; transition: transform 0.12s, border-color 0.2s, opacity 0.2s; }
+    .drag-card:active { transform: scale(0.92); }
+    .drag-card.distractor { border-color: #64748b; }
+    .drag-card.used { opacity: 0.15; pointer-events: none; }
+    
+    /* 第三關書寫板 */
+    .color-legend { display: flex; gap: 24px; background: #ffffff; padding: 10px 24px; border-radius: 30px; font-size: 1.25rem; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+    .legend-item { display: flex; align-items: center; gap: 8px; }
+    .color-dot { width: 22px; height: 22px; border-radius: 50%; }
+    .character-box { background: #ffffff; border: 6px solid #cbd5e1; border-radius: 36px; width: 360px; height: 360px; position: relative; box-shadow: 0 12px 28px rgba(0,0,0,0.12); overflow: hidden; touch-action: none; }
+    .grid-lines::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; border-top: 2px dashed #e2e8f0; }
+    .grid-lines::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; border-left: 2px dashed #e2e8f0; }
+    .identify-zone { position: absolute; top: 0; bottom: 0; height: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; }
+    .zone-radical { left: 0; width: 46%; background: rgba(34, 197, 94, 0.12); border-right: 3px dashed #16a34a; }
+    .zone-body { right: 0; width: 54%; background: rgba(0, 0, 0, 0.02); }
+    .zone-tag { position: absolute; top: 14px; padding: 6px 14px; border-radius: 20px; font-size: 1rem; font-weight: 800; }
+    .tag-radical { left: 14px; background: #dcfce7; color: #16a34a; }
+    .tag-body { right: 14px; background: #f1f5f9; color: #000; }
+    .body-part-run { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); font-size: 12.5rem; font-weight: 900; color: #000000; line-height: 1; pointer-events: none; }
+    .stroke-guide-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+    .guide-stroke-path { stroke: #cbd5e1; stroke-width: 26; stroke-linecap: round; fill: none; stroke-dasharray: 8 8; }
+    .guide-arrow { font-size: 17px; font-weight: bold; fill: #16a34a; }
+    #trace-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; cursor: crosshair; }
+
+    /* 通用按鈕 */
+    .btn-action { background: #22c55e; color: #ffffff; font-size: 1.5rem; font-weight: 800; border: none; border-radius: 50px; padding: 14px 40px; cursor: pointer; box-shadow: 0 6px 16px rgba(34,197,94,0.35); transition: transform 0.15s, background-color 0.2s; }
+    .btn-action:active { transform: scale(0.95); }
+    .btn-clear { background: #e2e8f0; color: #475569; font-size: 1.15rem; font-weight: bold; border: none; border-radius: 30px; padding: 10px 24px; cursor: pointer; }
+    #reward-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.72); flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+    .reward-content { background: #ffffff; padding: 40px; border-radius: 36px; text-align: center; box-shadow: 0 16px 36px rgba(0,0,0,0.3); animation: pop 0.35s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+    @keyframes pop { 0% { transform: scale(0.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="top-bar">
+      <button class="btn-nav-back" id="back-btn" onclick="goBack()">⬅ 返回上一關</button>
+      <div class="progress-nav">
+        <div class="step-pill active" id="pill-1">1. 認識詞語</div>
+        <div class="step-pill" id="pill-2">2. 排順序與挑戰</div>
+        <div class="step-pill" id="pill-3">3. 找三點水並描寫</div>
+      </div>
+    </div>
+
+    <div class="instruction-bar" onclick="playCurrentAudio()">
+      <button class="speaker-btn" title="朗讀指引">🔊</button>
+      <span class="instruction-text" id="instruction-title">點擊卡片，聽聽「潤膚膏」</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- 第一關：點擊認讀 -->
+    <div class="stage active" id="stage-1">
+      <div class="product-img-box">
+        <!-- 直接利用 SVG 向量渲染 3D 經典藍罐潤膚膏 -->
+        <svg viewBox="0 0 200 200" width="200" height="200">
+          <defs>
+            <radialGradient id="grad罐" cx="38%" cy="32%" r="68%">
+              <stop offset="0%" stop-color="#1e40af"/>
+              <stop offset="55%" stop-color="#1e3a8a"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </radialGradient>
+          </defs>
+          <circle cx="100" cy="100" r="92" fill="url(#grad罐)"/>
+          <circle cx="100" cy="100" r="88" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.6"/>
+          <circle cx="100" cy="100" r="84" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.4"/>
+          <text x="100" y="96" font-family="'Arial Black', Impact, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3">NIVEA</text>
+          <text x="100" y="118" font-family="Georgia, serif" font-size="14" font-style="italic" fill="#ffffff" text-anchor="middle">Creme</text>
+          <rect x="55" y="132" width="90" height="22" rx="11" fill="rgba(255,255,255,0.2)"/>
+          <text x="100" y="147" font-family="sans-serif" font-size="12" font-weight="bold" fill="#ffffff" text-anchor="middle">潤膚膏</text>
+        </svg>
+      </div>
+
+      <div class="phrase-cards">
+        <div class="read-card" onclick="speakSingle('潤')">潤</div>
+        <div class="read-card" onclick="speakSingle('膚')">膚</div>
+        <div class="read-card" onclick="speakSingle('膏')">膏</div>
+      </div>
+      <button class="btn-action" onclick="goToStage(2)">下一頁：開始排字 👉</button>
+    </div>
+
+    <!-- 第二關：順序推拉 + 二次干擾字挑戰 -->
+    <div class="stage" id="stage-2">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="font-size:1.3rem; font-weight:bold; color:#0284c7;" id="stage2-subtitle">
+          第 1 步：順序放入「潤、膚、膏」
+        </div>
+        <div class="round-tag" id="challenge-round-badge" style="display:none;">挑戰進度：第 1 / 2 次</div>
+      </div>
+
+      <div class="slots-container">
+        <div class="target-slot" id="slot-0" onclick="unfillSlot(0)">
+          <span class="slot-label">第 1 字</span>
+        </div>
+        <div class="target-slot" id="slot-1" onclick="unfillSlot(1)">
+          <span class="slot-label">第 2 字</span>
+        </div>
+        <div class="target-slot" id="slot-2" onclick="unfillSlot(2)">
+          <span class="slot-label">第 3 字</span>
+        </div>
+      </div>
+
+      <div class="draggable-pool" id="drag-pool"></div>
+
+      <div style="display:flex; gap:16px;">
+        <button class="btn-clear" onclick="resetStage2Substep()">重新排字 ↺</button>
+        <button class="btn-action" id="stage2-next-btn" style="display:none;" onclick="handleStage2Advance()">進入挑戰 👉</button>
+      </div>
+    </div>
+
+    <!-- 第三關：點擊三點水位置 -> 筆劃描寫（兩次練習） -->
+    <div class="stage" id="stage-3">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom: 4px;">
+        <div style="font-size:1.3rem; font-weight:bold; color:#0284c7;" id="stage3-subtitle">第 1 次描寫 (要求 50%)</div>
+        <div class="round-tag" id="writing-round-badge" style="display:none;">第 1 / 2 次</div>
+      </div>
+
+      <div class="color-legend">
+        <div class="legend-item">
+          <div class="color-dot" style="background:#16a34a;"></div>
+          <span>三點水（綠色）</span>
+        </div>
+        <div class="legend-item">
+          <div class="color-dot" style="background:#000000;"></div>
+          <span>部件 閏（黑色）</span>
+        </div>
+      </div>
+
+      <div class="character-box" id="char-box">
+        <div class="grid-lines"></div>
+
+        <!-- 3A：解鎖點選區 -->
+        <div class="identify-zone zone-radical" id="zone-left" onclick="handleZoneClick('radical')">
+          <span class="zone-tag tag-radical">三點水 氵</span>
+        </div>
+        <div class="identify-zone zone-body" id="zone-right" onclick="handleZoneClick('body')">
+          <span class="zone-tag tag-body">部件 閏</span>
+        </div>
+
+        <div class="body-part-run">閏</div>
+
+        <!-- 3B：虛線引導 SVG -->
+        <svg class="stroke-guide-svg" id="guide-svg" style="display:none;">
+          <path d="M 80, 75 Q 95, 95 105, 110" class="guide-stroke-path" id="guide-path-0" />
+          <text x="56" y="70" class="guide-arrow">① 點 ↘</text>
+
+          <path d="M 75, 170 Q 90, 190 102, 205" class="guide-stroke-path" id="guide-path-1" />
+          <text x="50" y="165" class="guide-arrow">② 點 ↘</text>
+
+          <path d="M 64, 305 Q 82, 275 106, 240" class="guide-stroke-path" id="guide-path-2" />
+          <text x="46" y="325" class="guide-arrow">③ 提 ↗</text>
+        </svg>
+
+        <canvas id="trace-canvas"></canvas>
+      </div>
+
+      <div style="display:flex; gap:16px;">
+        <button class="btn-clear" id="stage3-clear-btn" style="display:none;" onclick="clearCanvas()">重新描寫 ↺</button>
+        <button class="btn-action" id="stage3-finish-btn" style="display:none;" onclick="showFinalReward()">完成學習 ⭐</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="reward-modal">
+    <div class="reward-content">
+      <div style="font-size: 4.8rem;">🎉 🧴 ⭐</div>
+      <h2 style="font-size: 2.5rem; color: #16a34a; margin: 16px 0;">太棒了！大功告成！</h2>
+      <p style="font-size: 1.55rem; color: #334155; margin-bottom: 24px;">你成功完成了所有認讀與筆劃練習！</p>
+      <button class="btn-action" onclick="restartAll()">再玩一次 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    /* ================= 音效與語音合成 ================= */
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+
+      if (type === 'drop') {
+        osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1350, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+      } else if (type === 'fanfare') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.connect(g); g.connect(audioCtx.destination);
+          o.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.09);
+          g.gain.setValueAtTime(0.15, audioCtx.currentTime + idx * 0.09);
+          g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + idx * 0.09 + 0.35);
+          o.start(audioCtx.currentTime + idx * 0.09); o.stop(audioCtx.currentTime + idx * 0.09 + 0.35);
+        });
+        return;
+      } else if (type === 'error') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+      }
+      osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const v = window.speechSynthesis.getVoices().find(v => v.lang === 'zh-HK' || v.lang === 'yue-Hant-HK');
+      if (v) u.voice = v; else u.lang = 'zh-HK';
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    }
+
+    function speakSingle(char) { playSound('drop'); speakText(char); }
+
+    /* ================= 關卡流程 ================= */
+    let currentStage = 1;
+    const backBtn = document.getElementById('back-btn');
+
+    function goBack() {
+      if (currentStage > 1) goToStage(currentStage - 1);
+    }
+
+    function goToStage(stageNum) {
+      currentStage = stageNum;
+      document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.step-pill').forEach(p => p.classList.remove('active'));
+      document.getElementById(`stage-${stageNum}`).classList.add('active');
+      document.getElementById(`pill-${stageNum}`).classList.add('active');
+      backBtn.classList.toggle('show', stageNum > 1);
+
+      if (stageNum === 1) {
+        setPrompt("點擊卡片，聽聽「潤膚膏」");
+        speakText("我們一起認識：潤、膚、膏。");
+      } else if (stageNum === 2) {
+        stage2Substep = 1;
+        challengeCompletedCount = 0;
+        initStage2Substep();
+      } else if (stageNum === 3) {
+        initStage3();
+      }
+    }
+
+    function setPrompt(text) { document.getElementById('instruction-title').textContent = text; }
+
+    function playCurrentAudio() {
+      if (currentStage === 1) speakText("潤、膚、膏。潤膚膏。");
+      else if (currentStage === 2) {
+        if (stage2Substep === 1) speakText("請按順序排好：潤、膚、膏");
+        else speakText(`挑戰第 ${challengeCompletedCount + 1} 次：請在混淆字中排好潤膚膏。`);
+      } else if (currentStage === 3) {
+        if (!stage3Identified) speakText("請先點擊左邊「三點水」的位置！");
+        else speakText(`第 ${stage3RepetitionCount + 1} 次練習：請沿著虛線，慢慢描寫出三點水。`);
+      }
+    }
+
+    /* ================= 第二關：順序推拉與干擾（要求 2 次） ================= */
+    const targetOrder = ['潤', '膚', '膏'];
+    const CHALLENGE_ROUNDS = 2;
+    let stage2Substep = 1, challengeCompletedCount = 0, currentSlots = [null, null, null], poolCardEls = [];
+
+    function initStage2Substep() {
+      currentSlots = [null, null, null];
+      poolCardEls = [];
+      for (let i = 0; i < 3; i++) {
+        const slotEl = document.getElementById(`slot-${i}`);
+        slotEl.classList.remove('filled');
+        slotEl.innerHTML = `<span class="slot-label">第 ${i + 1} 字</span>`;
+      }
+      document.getElementById('stage2-next-btn').style.display = 'none';
+      const pool = document.getElementById('drag-pool');
+      pool.innerHTML = '';
+      const badge = document.getElementById('challenge-round-badge');
+      const subtitle = document.getElementById('stage2-subtitle');
+
+      if (stage2Substep === 1) {
+        badge.style.display = 'none';
+        subtitle.textContent = "第 1 步：順序放入「潤、膚、膏」";
+        setPrompt("請順序點擊「潤、膚、膏」");
+        speakText("請按順序放入：潤、膚、膏");
+        targetOrder.forEach(char => createPoolCard(char, pool, false));
+      } else {
+        badge.style.display = 'inline-block';
+        badge.textContent = `挑戰進度：第 ${challengeCompletedCount + 1} / ${CHALLENGE_ROUNDS} 次`;
+        subtitle.textContent = "第 2 步（挑戰）：在混淆字中排好「潤膚膏」";
+        setPrompt(`請找出「潤、膚、膏」排好（第 ${challengeCompletedCount + 1} 次）`);
+        speakText(`挑戰第 ${challengeCompletedCount + 1} 次。請找出潤、膚、膏，排好順序！`);
+        const mixed = ['水', '膏', '手', '潤', '油', '膚', '洗'].sort(() => Math.random() - 0.5);
+        mixed.forEach(char => createPoolCard(char, pool, !targetOrder.includes(char)));
+      }
+    }
+
+    function createPoolCard(char, container, isDistractor) {
+      const card = document.createElement('div');
+      card.className = `drag-card ${isDistractor ? 'distractor' : ''}`;
+      card.textContent = char; card.dataset.char = char;
+      card.onclick = () => handleStage2CardSelect(card, char);
+      container.appendChild(card); poolCardEls.push(card);
+    }
+
+    function handleStage2CardSelect(cardEl, char) {
+      const nextEmptyIdx = currentSlots.findIndex(c => c === null);
+      if (nextEmptyIdx === -1) return;
+      if (char === targetOrder[nextEmptyIdx]) {
+        currentSlots[nextEmptyIdx] = char;
+        document.getElementById(`slot-${nextEmptyIdx}`).innerHTML = `<span class="slot-label">第 ${nextEmptyIdx + 1} 字</span>${char}`;
+        document.getElementById(`slot-${nextEmptyIdx}`).classList.add('filled');
+        cardEl.classList.add('used');
+        playSound('drop'); speakText(char);
+        
+        if (currentSlots.every((c, i) => c === targetOrder[i])) {
+          setTimeout(() => {
+            playSound('fanfare');
+            const nextBtn = document.getElementById('stage2-next-btn');
+            if (stage2Substep === 1) {
+              speakText("好棒！現在進入干擾字挑戰！"); nextBtn.textContent = "進入挑戰 👉";
+            } else {
+              challengeCompletedCount++;
+              if (challengeCompletedCount < CHALLENGE_ROUNDS) {
+                speakText(`答對了！請再完成 ${CHALLENGE_ROUNDS - challengeCompletedCount} 次！`);
+                nextBtn.textContent = `再挑戰 ${CHALLENGE_ROUNDS - challengeCompletedCount} 次 ↺`;
+              } else {
+                speakText("太厲害了！挑戰成功！"); nextBtn.textContent = "下一關：寫三點水 👉";
+              }
+            }
+            nextBtn.style.display = 'inline-block';
+          }, 450);
+        }
+      } else { playSound('error'); cardEl.classList.add('shake'); speakText("再試一次"); setTimeout(() => cardEl.classList.remove('shake'), 450); }
+    }
+
+    function unfillSlot(idx) {
+      if (!currentSlots[idx]) return;
+      const charToRestore = currentSlots[idx];
+      currentSlots[idx] = null;
+      const slotEl = document.getElementById(`slot-${idx}`);
+      slotEl.classList.remove('filled');
+      slotEl.innerHTML = `<span class="slot-label">第 ${idx + 1} 字</span>`;
+      const cardToRestore = poolCardEls.find(c => c.dataset.char === charToRestore && c.classList.contains('used'));
+      if (cardToRestore) cardToRestore.classList.remove('used');
+      document.getElementById('stage2-next-btn').style.display = 'none';
+    }
+
+    function resetStage2Substep() { initStage2Substep(); }
+    function handleStage2Advance() {
+      if (stage2Substep === 1) { stage2Substep = 2; challengeCompletedCount = 0; initStage2Substep(); } 
+      else {
+        if (challengeCompletedCount < CHALLENGE_ROUNDS) { initStage2Substep(); } 
+        else { goToStage(3); }
+      }
+    }
+
+    /* ================= 第三關：點選辨識 -> 兩次書寫 (出界重試，準確率 50% & 65%) ================= */
+    let stage3RepetitionCount = 0;
+    const ACCURACY_LEVELS = [0.50, 0.65]; // 第一次 50%, 第二次要求提升到 65%
+    let stage3Identified = false, canvas, ctx, isDrawing = false, currentStrokeIndex = 0, strokePoints = [];
+    
+    // 氵（三點水）的標準像素點陣
+    const guidePaths = [
+      [{x:80,y:75},{x:84,y:85},{x:92,y:98},{x:102,y:110}],
+      [{x:75,y:170},{x:80,y:180},{x:87,y:192},{x:98,y:205}],
+      [{x:64,y:305},{x:72,y:290},{x:82,y:272},{x:94,y:254},{x:106,y:240}]
+    ];
+
+    function initStage3() {
+      stage3RepetitionCount = 0;
+      stage3Identified = false;
+      document.getElementById('zone-left').style.display = 'flex';
+      document.getElementById('zone-right').style.display = 'flex';
+      document.getElementById('guide-svg').style.display = 'none';
+      document.getElementById('stage3-clear-btn').style.display = 'none';
+      document.getElementById('stage3-finish-btn').style.display = 'none';
+      document.getElementById('writing-round-badge').style.display = 'none';
+      document.getElementById('stage3-subtitle').textContent = '';
+      setPrompt("請先點擊「三點水」的位置！");
+      speakText("請點擊左邊三點水的位置！");
+      setTimeout(setupCanvas, 50);
+    }
+
+    function handleZoneClick(zone) {
+      if (stage3Identified) return;
+      if (zone === 'radical') {
+        playSound('fanfare'); stage3Identified = true;
+        document.getElementById('zone-left').style.display = 'none';
+        document.getElementById('zone-right').style.display = 'none';
+        document.getElementById('guide-svg').style.display = 'block';
+        document.getElementById('stage3-clear-btn').style.display = 'inline-block';
+        startStage3Writing();
+      } else {
+        playSound('error');
+        const rEl = document.getElementById('zone-right');
+        rEl.classList.add('shake');
+        speakText("再試一次，三點水在左邊喔");
+        setTimeout(() => rEl.classList.remove('shake'), 450);
+      }
+    }
+
+    function startStage3Writing() {
+      clearCanvas();
+      const accuracy = ACCURACY_LEVELS[stage3RepetitionCount];
+      document.getElementById('stage3-subtitle').textContent = `第 ${stage3RepetitionCount + 1} 次描寫 (要求: ${accuracy * 100}%)`;
+      document.getElementById('writing-round-badge').style.display = 'inline-block';
+      document.getElementById('writing-round-badge').textContent = `第 ${stage3RepetitionCount + 1} / 2 次`;
+      setPrompt(`請沿著虛線描寫三點水（第 ${stage3RepetitionCount + 1} 次）`);
+      speakText(`第 ${stage3RepetitionCount + 1} 次練習，請沿著虛線，寫出綠色的三點水！`);
+    }
+
+    function setupCanvas() {
+      canvas = document.getElementById('trace-canvas');
+      const box = document.getElementById('char-box');
+      canvas.width = box.clientWidth || 360; canvas.height = box.clientHeight || 360;
+      ctx = canvas.getContext('2d');
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#16a34a'; ctx.lineWidth = 30;
+      clearCanvas();
+      canvas.onpointerdown = onTraceStart;
+      canvas.onpointermove = onTraceMove;
+      window.onpointerup = onTraceEnd;
+      window.onpointerleave = onTraceEnd;
+    }
+
+    function clearCanvas() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      currentStrokeIndex = 0; strokePoints = [];
+      guidePaths.forEach((p, i) => {
+        const path = document.getElementById(`guide-path-${i}`);
+        if (path) path.classList.remove('done');
+      });
+      document.getElementById('stage3-finish-btn').style.display = 'none';
+    }
+
+    function getCanvasCoords(e) { const rect = canvas.getBoundingClientRect(); return { x: e.clientX - rect.left, y: e.clientY - rect.top }; }
+    
+    function onTraceStart(e) {
+      if (!stage3Identified || currentStrokeIndex >= 3) return;
+      e.preventDefault(); isDrawing = true;
+      const pt = getCanvasCoords(e);
+      strokePoints = [pt];
+      ctx.beginPath(); ctx.moveTo(pt.x, pt.y);
+    }
+
+    function onTraceMove(e) {
+      if (!isDrawing) return;
+      e.preventDefault(); const pt = getCanvasCoords(e);
+      strokePoints.push(pt);
+      ctx.lineTo(pt.x, pt.y); ctx.stroke();
+    }
+
+    function onTraceEnd() {
+      if (!isDrawing) return;
+      isDrawing = false; ctx.closePath();
+      if (!stage3Identified || currentStrokeIndex >= 3) return;
+
+      const guide = guidePaths[currentStrokeIndex];
+      const reqAccuracy = ACCURACY_LEVELS[stage3RepetitionCount];
+
+      if (checkStrokeAccuracy(strokePoints, guide, reqAccuracy)) {
+        playSound('drop');
+        speakText(currentStrokeIndex === 0 ? "點！" : currentStrokeIndex === 1 ? "又一點！" : "向上提！");
+        document.getElementById(`guide-path-${currentStrokeIndex}`).classList.add('done');
+        currentStrokeIndex++;
+        
+        // 保留已經成功的綠色軌跡
+        redrawCorrectStrokes();
+
+        if (currentStrokeIndex >= 3) {
+          stage3RepetitionCount++;
+          setTimeout(() => {
+            if (stage3RepetitionCount < 2) {
+              speakText("寫得很好！現在進行第二次描寫，要更準確喔！");
+              startStage3Writing();
+            } else {
+              playSound('fanfare'); speakText("太優秀了！兩次描寫都成功！");
+              document.getElementById('stage3-finish-btn').style.display = 'inline-block';
+            }
+          }, 900);
+        }
+      } else {
+        playSound('error');
+        if (strokePoints.length < 5) {
+          speakText("請根據虛線慢慢描寫，不要只點一下喔！");
+        } else {
+          speakText("哎呀，寫出界了，請再試一次！");
+        }
+        redrawCorrectStrokes(); // 擦除錯誤筆劃，只繪製對的
+      }
+    }
+
+    function redrawCorrectStrokes() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      for (let sIdx = 0; sIdx < currentStrokeIndex; sIdx++) {
+        const pathPts = guidePaths[sIdx];
+        if (pathPts.length > 0) {
+          ctx.moveTo(pathPts[0].x, pathPts[0].y);
+          for (let i = 1; i < pathPts.length; i++) {
+            ctx.lineTo(pathPts[i].x, pathPts[i].y);
+          }
+        }
+      }
+      ctx.stroke();
+    }
+
+    function checkStrokeAccuracy(drawnPath, guidePath, requiredAccuracy) {
+      if (!drawnPath || drawnPath.length < 4) return false;
+      let onTrackPoints = 0;
+      const threshold = 35; // 判定出界的距離半徑
+      for (const drawnPt of drawnPath) {
+        let minDistance = Infinity;
+        for (let i = 0; i < guidePath.length - 1; i++) {
+          const dist = distToSegment(drawnPt, guidePath[i], guidePath[i+1]);
+          if (dist < minDistance) minDistance = dist;
+        }
+        if (minDistance < threshold) onTrackPoints++;
+      }
+      return (onTrackPoints / drawnPath.length) >= requiredAccuracy;
+    }
+
+    function distToSegment(p, v, w) {
+      const l2 = Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2);
+      if (l2 == 0) return Math.hypot(p.x - v.x, p.y - v.y);
+      let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(p.x - (v.x + t * (w.x - v.x)), p.y - (v.y + t * (w.y - v.y)));
+    }
+
+    function showFinalReward() { document.getElementById('reward-modal').style.display = 'flex'; }
+    function restartAll() { document.getElementById('reward-modal').style.display = 'none'; goToStage(1); }
+
+    window.onload = () => {
+      if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => {};
+      goToStage(1);
+    };
+  </script>
+</body>
+</html>
